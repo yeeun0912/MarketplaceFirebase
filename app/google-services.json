@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "354161051958",
+    "project_id": "marketplacefirebase-b9c7b",
+    "storage_bucket": "marketplacefirebase-b9c7b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:354161051958:android:786a7852d5803b302ecb97",
+        "android_client_info": {
+          "package_name": "com.example.marketplacefirebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC3fNQjvX5NPOyaFjXcKmSLV618Tod306U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
