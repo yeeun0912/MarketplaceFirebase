@@ -2,6 +2,7 @@ package com.example.marketplacefirebase
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,12 +38,12 @@ class FirestoreActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progressWait)
         textSnapshotListener = findViewById(R.id.textSnapshotListener)
 
-        itemAdapter = ItemAdapter()
+        itemAdapter = ItemAdapter(Firebase.auth.currentUser?.uid ?: "")
         recyclerView.adapter = itemAdapter
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-
         val spinnerFilter: Spinner = findViewById(R.id.spinnerFilter)
+
         ArrayAdapter.createFromResource(
             this,
             R.array.filter_options,
@@ -52,15 +53,25 @@ class FirestoreActivity : AppCompatActivity() {
             spinnerFilter.adapter = adapter
         }
 
-
         spinnerFilter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                Log.d("FilterDebug", "Selected Filter: ${parent.getItemAtPosition(position)}")
                 fetchDataFromFirestore(parent.getItemAtPosition(position).toString())
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
 
             }
+        }
+        spinnerFilter.setSelection(resources.getStringArray(R.array.filter_options).indexOf("전체 보기"), false)
+
+        fetchDataFromFirestore("전체 보기")
+
+        val buttonCreate = findViewById<Button>(R.id.buttonCreate)
+
+        buttonCreate.setOnClickListener{
+            val intent = Intent(this@FirestoreActivity, CreateSaleActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -76,7 +87,6 @@ class FirestoreActivity : AppCompatActivity() {
 
         query.addSnapshotListener { snapshot, e ->
             if (e != null) {
-                // Error handling
                 return@addSnapshotListener
             }
 
@@ -88,10 +98,14 @@ class FirestoreActivity : AppCompatActivity() {
                     val name = document.getString("name")
                     val price = document.getLong("price")?.toInt()
                     val status = document.getBoolean("status")
+                    val description = document.getString("description")
+                    val sellerEmail = document.getString("sellerEmail")
+                    val userId = document.getString("userId") ?: ""
 
                     if (name != null && price != null && status != null) {
                         val item = Item(title = name, content = "", documentId = documentId,
-                            name = name, price = price, status = status, seller = "")
+                            name = name, price = price, status = status, sellerEmail = sellerEmail ?:"",
+                            description = description, userId = userId)
                         itemList.add(item)
                     }
                 }
@@ -107,9 +121,10 @@ class FirestoreActivity : AppCompatActivity() {
 }
 
 data class Item(val title: String, val content: String, val documentId: String, val name: String,
-                val price: Int, val status: Boolean, val seller: String) : Serializable
+                val price: Int, val status: Boolean, val sellerEmail: String,
+                val userId: String, val description: String?) : Serializable
 
-class ItemAdapter : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
+class ItemAdapter(private val userId: String) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
 
     private var itemList: List<Item> = emptyList()
 
@@ -130,8 +145,13 @@ class ItemAdapter : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
         holder.textStatus.text = if (currentItem.status) "판매 중" else "판매 완료"
         holder.textPrice.text = currentItem.price.toString()
         holder.itemView.setOnClickListener {
-            val intent = Intent(holder.itemView.context, ItemDetailActivity::class.java)
+            val intent = if(Firebase.auth.currentUser?.uid == currentItem.userId) {
+                Intent(holder.itemView.context, EditSaleActivity::class.java)
+            } else {
+                Intent(holder.itemView.context, ItemDetailActivity::class.java)
+            }
             intent.putExtra("item", currentItem)
+            intent.putExtra("ITEM_ID", currentItem.documentId)
             holder.itemView.context.startActivity(intent)
         }
     }

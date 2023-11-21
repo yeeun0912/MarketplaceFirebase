@@ -63,7 +63,7 @@
             android:layout_gravity="center"
             android:layout_marginBottom="10dp"
             android:ems="11"
-            android:hint="비밀번호"
+            android:hint="비밀번호 (******)"
             android:inputType="textPassword" />
 
         <Button

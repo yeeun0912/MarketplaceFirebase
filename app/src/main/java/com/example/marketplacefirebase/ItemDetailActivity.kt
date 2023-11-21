@@ -3,18 +3,33 @@ package com.example.marketplacefirebase
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+
 
 class ItemDetailActivity : AppCompatActivity() {
+
+    private lateinit var item: Item
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_item_detail)
 
-        // Get item information from the intent
         val item = intent.getSerializableExtra("item") as Item
 
-        // Set up views
+        if (item == null) {
+            Toast.makeText(this, "아이템 데이터를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+
+        val auth = Firebase.auth
+        val user = auth.currentUser
+        //val currentUserId = user?.uid
+        val currentUserEmail = user?.email
+
         val textTitle: TextView = findViewById(R.id.textTitle)
         val textContent: TextView = findViewById(R.id.textContent)
         val textPrice: TextView = findViewById(R.id.textPrice)
@@ -22,13 +37,12 @@ class ItemDetailActivity : AppCompatActivity() {
         val textSeller: TextView = findViewById(R.id.textSeller)
         val buttonSendMessage: Button = findViewById(R.id.buttonSendMessage)
 
-
         textTitle.text = item.title
-        textContent.text = item.content
         textPrice.text = item.price.toString()
         textStatus.text = if (item.status) "판매 중" else "판매 완료"
-        textSeller.text = item.seller
+        textContent.text = item.description
 
+        textSeller.text = item.sellerEmail ?: "알 수 없는 판매자"
 
         buttonSendMessage.setOnClickListener {
 
