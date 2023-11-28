@@ -73,6 +73,14 @@ class FirestoreActivity : AppCompatActivity() {
             val intent = Intent(this@FirestoreActivity, CreateSaleActivity::class.java)
             startActivity(intent)
         }
+
+        val buttonViewMessages = findViewById<Button>(R.id.buttonViewMessages)
+
+        buttonViewMessages.setOnClickListener {
+            val intent = Intent(this, ViewMessages::class.java)
+            startActivity(intent)
+            finish()
+        }
     }
 
     private fun fetchDataFromFirestore(filter: String) {

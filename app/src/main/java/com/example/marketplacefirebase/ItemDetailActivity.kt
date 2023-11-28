@@ -1,5 +1,7 @@
 package com.example.marketplacefirebase
 
+import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
@@ -45,7 +47,13 @@ class ItemDetailActivity : AppCompatActivity() {
         textSeller.text = item.sellerEmail ?: "알 수 없는 판매자"
 
         buttonSendMessage.setOnClickListener {
-
+            val sharedUserEmail : SharedPreferences = getSharedPreferences("userEmail", MODE_PRIVATE)
+            val editor: SharedPreferences.Editor = sharedUserEmail.edit()
+            editor.putString("inputText",textSeller.text.toString())
+            editor.commit()
+            startActivity(
+                Intent(this, SendMessage::class.java)
+            )
         }
     }
 }
