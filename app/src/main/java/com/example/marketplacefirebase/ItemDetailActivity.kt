@@ -47,13 +47,9 @@ class ItemDetailActivity : AppCompatActivity() {
         textSeller.text = item.sellerEmail ?: "알 수 없는 판매자"
 
         buttonSendMessage.setOnClickListener {
-            val sharedUserEmail : SharedPreferences = getSharedPreferences("userEmail", MODE_PRIVATE)
-            val editor: SharedPreferences.Editor = sharedUserEmail.edit()
-            editor.putString("inputText",textSeller.text.toString())
-            editor.commit()
-            startActivity(
-                Intent(this, SendMessage::class.java)
-            )
+            val intent = Intent(this, SendMessage::class.java)
+            intent.putExtra("sellerEmail", textSeller.text.toString())
+            startActivity(intent)
         }
     }
 }

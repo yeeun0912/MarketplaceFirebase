@@ -3,8 +3,10 @@ package com.example.marketplacefirebase
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -16,8 +18,10 @@ class SendMessage : AppCompatActivity(){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_message)
 
-        val sharedUserEmail : SharedPreferences = getSharedPreferences("userEmail", MODE_PRIVATE)
-        val sellerEmail = sharedUserEmail.getString("userEmail", "").toString()
+//        val sharedUserEmail : SharedPreferences = getSharedPreferences("sellerEmail", MODE_PRIVATE)
+//        val sellerEmail = sharedUserEmail.getString("sellerEmail", "알 수 없는 판매자").toString()
+//
+        val sellerEmail = intent.getSerializableExtra("sellerEmail").toString()
 
         val auth = Firebase.auth
         val user = auth.currentUser
@@ -31,11 +35,17 @@ class SendMessage : AppCompatActivity(){
         sendButton.setOnClickListener {
             val editMessage = findViewById<EditText>(R.id.editMessage)
             val usersMap = hashMapOf(
-                "userEmail" to currentUserEmail,
-                "message" to editMessage
+                "currentUserEmail" to currentUserEmail,
+                "message" to editMessage.text.toString(),
+                "sellerEmail" to sellerEmail
             )
-            usersCollectionRef.document(sellerEmail).set(usersMap)
-                .addOnSuccessListener { }.addOnFailureListener{ }
+            usersCollectionRef.add(usersMap)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "메세지가 성공적으로 보내졌습니다.", Toast.LENGTH_SHORT).show()
+                }.addOnFailureListener{
+                    Toast.makeText(this, "메세지 보내기가 실패하였습니다.", Toast.LENGTH_SHORT).show()
+                }
+
             val intent = Intent(this, FirestoreActivity::class.java)
             startActivity(intent)
         }
